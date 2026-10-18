@@ -1,0 +1,38 @@
+{
+  "$GMTileSet":"v1",
+  "%Name":"ts_forest",
+  "autoTileSets":[],
+  "macroPageTiles":{
+    "SerialiseHeight":0,
+    "SerialiseWidth":0,
+    "TileSerialiseData":[],
+  },
+  "name":"ts_forest",
+  "out_columns":3,
+  "out_tilehborder":0,
+  "out_tilevborder":0,
+  "parent":{
+    "name":"Ungodly Remnants",
+    "path":"Ungodly Remnants.yyp",
+  },
+  "resourceType":"GMTileSet",
+  "resourceVersion":"2.0",
+  "spriteId":{
+    "name":"spr_tiles_forest",
+    "path":"sprites/spr_tiles_forest/spr_tiles_forest.yy",
+  },
+  "spriteNoExport":false,
+  "textureGroupId":{
+    "name":"Default",
+    "path":"texturegroups/Default",
+  },
+  "tileAnimationFrames":[],
+  "tileAnimationSpeed":15.0,
+  "tileHeight":204,
+  "tilehsep":0,
+  "tilevsep":0,
+  "tileWidth":256,
+  "tilexoff":0,
+  "tileyoff":0,
+  "tile_count":6,
+}
