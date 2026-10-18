@@ -27,25 +27,27 @@ unit_sprites = [
 corruption_sprites = [spr_corruption_01, spr_corruption_02, spr_corruption_03, spr_corruption_04, spr_corruption_05, spr_corruption_06, spr_corruption_07];
 /// Asset Lab: deterministic isometric scene and all-direction animation inspection.
 web_layout_test=environment_get_variable("UNGODLY_WEB_LAYOUT_TEST")!="";
-web_layout=false//(os_type==os_operagx) || web_layout_test;
+web_layout=(os_type==os_operagx) || web_layout_test;
 web_camera_owned=-1;
 lab_width = 1440;
-lab_height = web_layout ? lab_width*532/947 : 900;
-if (web_layout) {
+lab_height = 900;
+// The first room also supplies these dimensions before Create runs in GX.
+// Configure the native camera explicitly so its layout remains independent.
+{
     view_enabled=true;
     for (var _view=0; _view<8; ++_view) view_visible[_view]=(_view==0);
     if (view_camera[0]==-1) {
-        web_camera_owned=camera_create_view(0,0,947,532,0,-1,-1,-1,-1,-1);
+        web_camera_owned=camera_create_view(0,0,lab_width,lab_height,0,-1,-1,-1,-1,-1);
         view_camera[0]=web_camera_owned;
     }
     camera_set_view_pos(view_camera[0],0,0);
-    camera_set_view_size(view_camera[0],947,532);
+    camera_set_view_size(view_camera[0],lab_width,lab_height);
     view_xport[0]=0; view_yport[0]=0;
-    view_wport[0]=947; view_hport[0]=532;
+    view_wport[0]=web_layout ? lab_width : 1280; view_hport[0]=web_layout ? lab_height : 800;
 }
 display_set_gui_size(lab_width, lab_height);
-if (web_layout_test) { window_set_fullscreen(false); window_set_size(947,532); }
-else if (!web_layout) window_set_size(1280, 800);
+if (web_layout_test) window_set_fullscreen(false);
+window_set_size(web_layout ? lab_width : 1280,web_layout ? lab_height : 800);
 window_set_caption("Ungodly Remnants | Asset Lab");
 
 lab_mode = 0;
@@ -1478,10 +1480,9 @@ gui_window_bounds=[0,0,lab_width,lab_height];
 player_gui_update=function() {
     // Keep the logical canvas aligned with the application surface,
     // but allow GUI drawing over the window's pillarbox/letterbox margins too.
-    if (web_layout && surface_exists(application_surface)) {
-        if (surface_get_width(application_surface)!=947 || surface_get_height(application_surface)!=532)
-            surface_resize(application_surface,947,532);
-    }
+    // GX reports browser dimensions here, while GUI/mouse coordinates belong
+    // to its canvas. Let the runner apply the canvas/CSS transform once.
+    if (web_layout) return;
     var _position=application_get_position();
     var _scale_x=max(1,_position[2]-_position[0])/lab_width;
     var _scale_y=max(1,_position[3]-_position[1])/lab_height;
@@ -3270,12 +3271,12 @@ player_tests_tick=function() {
                 if (web_layout_test) {
                     show_debug_message("WEB_LAYOUT: logical="+string(lab_width)+"x"+string(lab_height)
                         +", bottom="+string(gui_bottom)+", hire_bottom="+string(gui_create_rect[1]+gui_create_rect[3])
-                        +", ratio_error="+string(abs(lab_width/lab_height-947/532)));
-                    unit_test_assert(camera_get_view_width(view_camera[0])==947 && camera_get_view_height(view_camera[0])==532
-                        && view_wport[0]==947 && view_hport[0]==532
-                        && surface_get_width(application_surface)==947 && surface_get_height(application_surface)==532,
-                        "Web: camera, viewport and application surface remain exactly 947x532");
-                    unit_test_assert(abs(lab_width/lab_height-947/532)<0.001
+                        +", ratio_error="+string(abs(lab_width/lab_height-1440/900)));
+                    unit_test_assert(camera_get_view_width(view_camera[0])==1440 && camera_get_view_height(view_camera[0])==900
+                        && view_wport[0]==1440 && view_hport[0]==900
+                        && surface_get_width(application_surface)==1440 && surface_get_height(application_surface)==900,
+                        "Web: camera, viewport and application surface use the original 1440x900 resolution");
+                    unit_test_assert(abs(lab_width/lab_height-1440/900)<0.001
                         && gui_create_rect[1]+gui_create_rect[3]<lab_height && abs(gui_bottom+296-lab_height)<0.001
                         && 790<lab_height,"Web: HUD, recruitment, footer and controls fit the uniform-scale canvas");
                     var _slots_fit=true;
